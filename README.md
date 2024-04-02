@@ -1,5 +1,5 @@
 # GymTracker
-A simple program to track workouts
+A minimalistic program to track workouts.
 
 ## Background
 I train at the gym and I use Google Keep to register my workouts, which starts to feel cumberson as I have all my registered workouts in one single list and it starts to become cumbersome.
