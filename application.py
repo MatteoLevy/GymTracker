@@ -11,17 +11,13 @@ CREATE TABLE IF NOT EXISTS Workouts(
                   id INTEGER PRIMARY KEY,
                   date TEXT
 );
-
-CREATE TABLE IF NOT EXISTS Sets(
-                  id INTEGER PRIMARY KEY,
-                  workout_id INTEGER,
-                  count INTEGER
-);                
-
+         
 CREATE TABLE IF NOT EXISTS Exercises(
                   id INTEGER PRIMARY KEY,
                   name TEXT,
-                  set_id INTEGER
+                  workout_id INTEGER,
+                  sets_counter INTEGER,
+                  reps_counter INTEGER
 );                         
 ''')
 
@@ -46,38 +42,56 @@ if start_workout == 'Y':
     cur.execute('SELECT id FROM Workouts WHERE date = ? ', (current_time, ))
     workout_id = cur.fetchone()[0]
     print("Workout ID: ", workout_id)
+    sets_counter = 0
+
+    while True:
+        sets_counter += 1
+        exercise = input('Exercise? ')
+        reps_counter = int(input('Reps? '))
+
+        # Insert a new row in the Exercises table
+        cur.execute('''INSERT OR IGNORE INTO Exercises (name, workout_id, sets_counter, reps_counter)
+                    VALUES ( ? , ? , ? , ? )''', (exercise, workout_id, sets_counter, reps_counter))
+        
+        conn.commit()
+
+        # Provides the ID of the Exercise created in the Exercises table
+        cur.execute('SELECT id FROM Exercises WHERE name = ? AND workout_id = ? AND sets_counter = ? AND reps_counter = ?', (exercise, workout_id, sets_counter, reps_counter))
+        exercise_id = cur.fetchone()[0]
+        print("Exercise ID: ", exercise_id)
+
+        choice = input('More reps (R), new exercise (N), or end workout (Q)? ').upper()
+
+        while choice == "R":
+            sets_counter += 1
+            reps_counter = int(input('Reps? '))
+
+            # Insert a new row in the Exercises table
+            cur.execute('''INSERT OR IGNORE INTO Exercises (name, workout_id, sets_counter, reps_counter)
+                        VALUES ( ? , ? , ? , ? )''', (exercise, workout_id, sets_counter, reps_counter))
+            
+            conn.commit()
+
+            # Provides the ID of the Exercise created in the Exercises table
+            cur.execute('SELECT id FROM Exercises WHERE name = ? AND workout_id = ? AND sets_counter = ? AND reps_counter = ?', (exercise, workout_id, sets_counter, reps_counter))
+            exercise_id = cur.fetchone()[0]
+            print("Exercise ID: ", exercise_id)
+
+            choice = input('More reps (R), new exercise (N), or end workout (Q)? ').upper()
+
+            if choice != 'R':
+                sets_counter = 0
+                break
+
+        if choice == 'N':
+             continue
+        if choice == 'Q':
+            break
+    
+    print('Well done!')
 
     conn.close()
 
-    exercise = input('Exercise? ')
-    while True:
-        # Verify that the reps input is an integer, throws error otherwise and asks for input again.
-        while True:
-            try: 
-                reps = int(input('Reps? '))
-                break
-            except ValueError: 
-                print('Error! Insert an integer number (e.g. \'8\' or \'12\')')
-                continue
-        
-        # Verify that the input is among the valid options, throws error otherwise and asks for input again.
-        valid_choices = ["R", "N", "Q"]
-        while True:
-            choice = input('More reps (R), new exercise (N), or end workout (Q)? ').upper()
-            if choice in valid_choices:
-                break
-            else:
-                print('Error! Value not allowed! It must be "R", "N", or "Q"')
-
-        if choice == 'R':
-            continue
-        elif choice == 'N': 
-            next_exercise = input('Next exercise? ')
-        elif choice == 'Q': 
-            break
-        else: 
-            print('Error!')
-    print('Well done!')
 else: 
     print('Alright, see you next time!')
     quit()
