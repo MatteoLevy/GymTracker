@@ -1,5 +1,5 @@
 import pytest
-from app import get_string_input
+from utils.inputValidator import get_string_input
 
 
 # Test Valid Input: ensure that the function returns the correct input when the user provides a valid choice.

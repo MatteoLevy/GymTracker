@@ -1,67 +1,22 @@
 import sqlite3
 from datetime import datetime
+from utils.dataHandler import create_tables, insert_workout
+from utils.inputValidator import get_string_input, get_integer_input
+
 
 conn = sqlite3.connect("workouts.db")
 cur = conn.cursor()
 current_time = datetime.now().isoformat()
 
 
-def create_tables():
-    # Create Workouts and Exercises tables, if they do not already exist
-    cur.executescript(
-        """
-    CREATE TABLE IF NOT EXISTS Workouts(
-                    id INTEGER PRIMARY KEY,
-                    date TEXT
-    );
-            
-    CREATE TABLE IF NOT EXISTS Exercises(
-                    id INTEGER PRIMARY KEY,
-                    name TEXT,
-                    workout_id INTEGER,
-                    sets_counter INTEGER,
-                    reps_counter INTEGER
-    );                         
-    """
-    )
-
-
-# Verify that the string input is among the valid choices, if any, and throws error otherwise and asks for input again.
-def get_string_input(prompt, valid_choices=None):
-    while True:
-        user_input = input(prompt).upper()
-        if valid_choices is None or user_input in map(str.upper, valid_choices):
-            return user_input
-        else:
-            print(
-                f'Error! Value not allowed! Allowed choices: {", ".join(map(repr, valid_choices))}'
-            )
-
-
-# Verify that the reps input is an integer, throws error otherwise and asks for input again.
-def get_integer_input(prompt):
-    while True:
-        try:
-            user_input = int(input(prompt))
-            return user_input
-        except ValueError:
-            print("Error! Insert an integer number (e.g. '8' or '12')")
+create_tables()
 
 
 def main():
     create_tables()
     start_workout = get_string_input("Start workout (Y/N)? ", ["Y", "N"])
     if start_workout == "Y":
-        # Insert a new row in the Workouts table
-        cur.execute(
-            """INSERT OR IGNORE INTO Workouts (date)
-                    VALUES ( ? )""",
-            (current_time,),
-        )
-
-        conn.commit()
-
-        # Provides the ID of the Workout created in the Workouts table
+        insert_workout()
         cur.execute("SELECT id FROM Workouts WHERE date = ? ", (current_time,))
         workout_id = cur.fetchone()[0]
         sets_counter = 0
@@ -73,9 +28,25 @@ def main():
 
             # Insert a new row in the Exercises table
             cur.execute(
-                """INSERT OR IGNORE INTO Exercises (name, workout_id, sets_counter, reps_counter)
-                        VALUES ( ? , ? , ? , ? )""",
-                (exercise, workout_id, sets_counter, reps_counter),
+                """INSERT OR IGNORE INTO Exercises (workout_id, name)
+                        VALUES ( ? , ? )""",
+                (workout_id, exercise),
+            )
+
+            conn.commit()
+
+            # Provides the ID of the Exercise created in the Exercises table
+            cur.execute(
+                "SELECT MAX(id) FROM Exercises WHERE workout_id = ? AND name = ? ",
+                (workout_id, exercise),
+            )
+            exercise_id = cur.fetchone()[0]
+
+            # Insert a new row in the Sets table
+            cur.execute(
+                """INSERT OR IGNORE INTO Sets (exercise_id, sets_counter, reps_counter)
+                        VALUES ( ? , ? , ? )""",
+                (exercise_id, sets_counter, reps_counter),
             )
 
             conn.commit()
@@ -89,9 +60,25 @@ def main():
 
                 # Insert a new row in the Exercises table
                 cur.execute(
-                    """INSERT OR IGNORE INTO Exercises (name, workout_id, sets_counter, reps_counter)
-                            VALUES ( ? , ? , ? , ? )""",
-                    (exercise, workout_id, sets_counter, reps_counter),
+                    """INSERT OR IGNORE INTO Exercises (workout_id, name)
+                            VALUES ( ? , ? )""",
+                    (workout_id, exercise),
+                )
+
+                conn.commit()
+
+                # Provides the ID of the Exercise created in the Exercises table
+                cur.execute(
+                    "SELECT MAX(id) FROM Exercises WHERE workout_id = ? AND name = ? ",
+                    (workout_id, exercise),
+                )
+                exercise_id = cur.fetchone()[0]
+
+                # Insert a new row in the Sets table
+                cur.execute(
+                    """INSERT OR IGNORE INTO Sets (exercise_id, sets_counter, reps_counter)
+                            VALUES ( ? , ? , ? )""",
+                    (exercise_id, sets_counter, reps_counter),
                 )
 
                 conn.commit()
