@@ -1,7 +1,7 @@
 import sqlite3
 
 
-class DataHandler:
+class DatabaseHandler:
     def __init__(self, db_name):
         self.db_name = db_name
         self.conn = sqlite3.connect(db_name)

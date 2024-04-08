@@ -1,5 +1,7 @@
 import pytest
-from utils.inputValidator import get_string_input
+from utils.InputsValidator import InputsValidator
+
+input_validator = InputsValidator()
 
 
 # Test Valid Input: ensure that the function returns the correct input when the user provides a valid choice.
@@ -14,7 +16,7 @@ def test_get_string_input_valid_choice():
     # Patch input() function with mock_input
     with pytest.MonkeyPatch.context() as m:
         m.setattr("builtins.input", mock_input)
-        result = get_string_input(prompt, valid_choices=["Y", "N"])
+        result = input_validator.get_string_input(prompt, valid_choices=["Y", "N"])
 
     # Check the result
     assert result == "Y"
@@ -30,7 +32,7 @@ def test_get_string_input_case_insensitive():
 
     with pytest.MonkeyPatch.context() as m:
         m.setattr("builtins.input", mock_input)
-        result = get_string_input(prompt, valid_choices=["Y", "N"])
+        result = input_validator.get_string_input(prompt, valid_choices=["Y", "N"])
     assert result == "N"
 
 
@@ -45,7 +47,7 @@ def test_get_string_input_invalid_then_valid():
     # Patch input() function with mock_input
     with pytest.MonkeyPatch.context() as m:
         m.setattr("builtins.input", mock_input)
-        result = get_string_input(prompt, valid_choices=["yes", "no"])
+        result = input_validator.get_string_input(prompt, valid_choices=["yes", "no"])
 
     # Check the result
     assert result == "YES"
