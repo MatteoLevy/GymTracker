@@ -23,6 +23,7 @@ def main():
         "Sets",
         id="INTEGER PRIMARY KEY",
         exercise_id="INTEGER",
+        weight="REAL",
         sets_counter="INTEGER",
         reps_counter="INTEGER",
     )
@@ -42,6 +43,7 @@ def main():
         while True:
             sets_counter += 1
             exercise = inputs_validator.get_string_input("Exercise? ")
+            weight = inputs_validator.get_number_input("Weight? ")
             reps_counter = inputs_validator.get_integer_input("Reps? ")
 
             # Insert a new row in the Exercises table
@@ -60,6 +62,7 @@ def main():
             database_handler.insert_into_table(
                 "Sets",
                 exercise_id=exercise_id,
+                weight=weight,
                 sets_counter=sets_counter,
                 reps_counter=reps_counter,
             )
@@ -87,6 +90,7 @@ def main():
                 database_handler.insert_into_table(
                     "Sets",
                     exercise_id=exercise_id,
+                    weight=weight,
                     sets_counter=sets_counter,
                     reps_counter=reps_counter,
                 )

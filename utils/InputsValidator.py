@@ -13,7 +13,7 @@ class InputsValidator:
                     f'Error! Value not allowed! Allowed choices: {", ".join(map(repr, valid_choices))}'
                 )
 
-    # Verify that the reps input is an integer, throws error otherwise and asks for input again.
+    # Verify that the input is an integer, throws error otherwise and asks for input again.
     def get_integer_input(self, prompt):
         while True:
             try:
@@ -21,3 +21,15 @@ class InputsValidator:
                 return user_input
             except ValueError:
                 print("Error! Insert an integer number (e.g. '8' or '12')")
+
+    # Verify that the input is a number formatted as an int or a float or a comma-separated number, throws error otherwise and asks for input again.
+    def get_number_input(self, prompt):
+        while True:
+            try:
+                user_input = input(prompt)
+                user_input = user_input.replace(
+                    ",", "."
+                )  # Replace comma, if present, with period
+                return float(user_input)  # Attempt to convert to float
+            except ValueError:
+                print("Error! Insert a number (e.g. '20', '20.5', or '20,5')")
