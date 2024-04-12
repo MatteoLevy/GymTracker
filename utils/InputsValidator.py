@@ -5,7 +5,9 @@ class InputsValidator:
     # Verify that the string input is among the valid choices, if any, and throws error otherwise and asks for input again.
     def get_string_input(self, prompt, valid_choices=None):
         while True:
-            user_input = input(prompt).upper()
+            user_input = (
+                input(prompt).strip().upper()
+            )  # Strip leading and trailing whitespaces
             if valid_choices is None or user_input in map(str.upper, valid_choices):
                 return user_input
             else:
@@ -17,16 +19,17 @@ class InputsValidator:
     def get_integer_input(self, prompt):
         while True:
             try:
-                user_input = int(input(prompt))
-                return user_input
+                user_input = input(prompt).strip()
+                return int(user_input)
             except ValueError:
                 print("Error! Insert an integer number (e.g. '8' or '12')")
 
-    # Verify that the input is a number formatted as an int or a float or a comma-separated number, throws error otherwise and asks for input again.
+    # Verify that the input is a number formatted as an int or a float or a comma-separated number,
+    # throws error otherwise and asks for input again.
     def get_number_input(self, prompt):
         while True:
             try:
-                user_input = input(prompt)
+                user_input = input(prompt).strip()
                 user_input = user_input.replace(
                     ",", "."
                 )  # Replace comma, if present, with period
